@@ -1,0 +1,3 @@
+#!/bin/bash
+# Maven Wrapper - delegates to system maven
+exec mvn "$@"

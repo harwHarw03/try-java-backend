@@ -1,0 +1,41 @@
+# =============================================
+# AirScope Application Configuration
+# =============================================
+
+# --- Server ---
+server.port=8080
+
+# --- PostgreSQL Database ---
+spring.datasource.url=jdbc:postgresql://localhost:5432/airscope
+spring.datasource.username=airscope_user
+spring.datasource.password=airscope_pass
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# --- JPA / Hibernate ---
+# "update" = auto-update schema on startup (good for development)
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+
+# --- JWT Settings ---
+# Secret key (change this in production! Should be a long, random string)
+jwt.secret=airscope-super-secret-key-change-this-in-production-please
+# Token expiration: 24 hours in milliseconds
+jwt.expiration=86400000
+
+# --- AWS DynamoDB ---
+aws.region=us-east-1
+aws.accessKeyId=your-access-key-id
+aws.secretAccessKey=your-secret-access-key
+# Set to true to use DynamoDB Local for development/testing
+aws.dynamodb.local=false
+aws.dynamodb.local.endpoint=http://localhost:8000
+
+# --- Swagger / OpenAPI ---
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.api-docs.path=/api-docs
+
+# --- Logging ---
+logging.level.com.airscope=DEBUG
+logging.level.org.springframework.security=INFO
