@@ -1,6 +1,7 @@
 package com.airscope.util;
 
 import com.airscope.dto.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -12,21 +13,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
-/**
- * GlobalExceptionHandler - catches all exceptions and returns consistent error responses.
- *
- * @RestControllerAdvice means this class applies to ALL controllers.
- * Each @ExceptionHandler method handles a specific exception type.
- *
- * Without this, Spring would return its own ugly HTML error pages.
- * With this, we always return clean JSON like:
- * {
- *   "message": "Device not found with id: 5",
- *   "status": 404
- * }
- */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Handle 404 - resource not found.
+     */
 
     /**
      * Handle 404 - resource not found.
@@ -100,10 +93,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        // Log the full stack trace for debugging
-        ex.printStackTrace();
+        log.error("Unexpected error occurred: {}", ex.getClass().getSimpleName(), ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("An unexpected error occurred: " + ex.getMessage(), 500));
+                .body(new ErrorResponse("An unexpected error occurred. Please try again later.", 500));
     }
 }

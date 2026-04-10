@@ -2,6 +2,7 @@ package com.airscope.controller;
 
 import com.airscope.dto.AuthDto.AuthResponse;
 import com.airscope.dto.AuthDto.LoginRequest;
+import com.airscope.dto.AuthDto.RefreshTokenRequest;
 import com.airscope.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,10 +18,10 @@ import org.springframework.web.bind.annotation.*;
  * These endpoints are PUBLIC — no JWT token required.
  * (Configured in SecurityConfig)
  *
- * Base URL: /auth
+ * Base URL: /api/v1/auth
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Register and login endpoints")
 public class AuthController {
@@ -67,6 +68,7 @@ public class AuthController {
      * Response (200 OK):
      * {
      *   "token": "eyJhbGci...",
+     *   "refreshToken": "eyJhbGci...",
      *   "email": "user@example.com",
      *   "role": "ROLE_USER",
      *   "message": "Login successful"
@@ -76,6 +78,23 @@ public class AuthController {
     @Operation(summary = "Login and get a JWT token")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * POST /auth/refresh
+     *
+     * Refresh access token using a valid refresh token.
+     *
+     * Request body:
+     * {
+     *   "refreshToken": "eyJhbGci..."
+     * }
+     */
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token")
+    public ResponseEntity<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse response = authService.refreshToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 }

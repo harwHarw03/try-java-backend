@@ -68,6 +68,25 @@ public class AlertService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Delete an alert by ID.
+     * We verify the alert's device belongs to the user first.
+     */
+    public void deleteAlert(Long alertId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new AppExceptions.ResourceNotFoundException("User not found"));
+
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new AppExceptions.ResourceNotFoundException("Alert not found"));
+
+        // Verify the device belongs to this user
+        deviceRepository.findByIdAndUserId(alert.getDevice().getId(), user.getId())
+                .orElseThrow(() -> new AppExceptions.UnauthorizedException(
+                        "Alert not found or does not belong to you"));
+
+        alertRepository.delete(alert);
+    }
+
     private AlertResponse toResponse(Alert alert) {
         return AlertResponse.builder()
                 .id(alert.getId())

@@ -34,6 +34,9 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expirationMs;
 
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpirationMs;
+
     /**
      * Get the signing key from our secret string.
      * We must use a cryptographically strong key.
@@ -43,23 +46,34 @@ public class JwtUtil {
     }
 
     /**
-     * Generate a JWT token for a user.
+     * Generate an access token for a user.
      *
      * @param email the user's email (will be the "subject" of the token)
      * @param role  the user's role (stored as a "claim" inside the token)
      * @return signed JWT string
      */
     public String generateToken(String email, String role) {
+        return generateToken(email, role, expirationMs);
+    }
+
+    /**
+     * Generate a refresh token for a user (longer expiration).
+     */
+    public String generateRefreshToken(String email, String role) {
+        return generateToken(email, role, refreshExpirationMs);
+    }
+
+    private String generateToken(String email, String role, long expirationMs) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role); // store role inside the token
+        claims.put("role", role);
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(email)                              // who this token belongs to
-                .issuedAt(new Date())                        // when it was created
-                .expiration(new Date(System.currentTimeMillis() + expirationMs)) // when it expires
-                .signWith(getSigningKey())                   // sign with our secret key
-                .compact();                                  // build the final string
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(getSigningKey())
+                .compact();
     }
 
     /**
@@ -87,7 +101,7 @@ public class JwtUtil {
     /**
      * Check if the token's expiration date has passed.
      */
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
     }
 

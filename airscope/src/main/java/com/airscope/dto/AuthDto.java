@@ -25,10 +25,11 @@ public class AuthDto {
 
         @NotBlank(message = "Email is required")
         @Email(message = "Email must be valid")
+        @Size(max = 255, message = "Email must be at most 255 characters")
         private String email;
 
         @NotBlank(message = "Password is required")
-        @Size(min = 6, message = "Password must be at least 6 characters")
+        @Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters")
         private String password;
     }
 
@@ -40,15 +41,27 @@ public class AuthDto {
     public static class AuthResponse {
 
         private String token;
+        private String refreshToken;
         private String email;
         private String role;
         private String message;
 
-        public AuthResponse(String token, String email, String role, String message) {
+        public AuthResponse(String token, String refreshToken, String email, String role, String message) {
             this.token = token;
+            this.refreshToken = refreshToken;
             this.email = email;
             this.role = role;
             this.message = message;
         }
+    }
+
+    /**
+     * Request body for refreshing tokens: POST /auth/refresh
+     */
+    @Data
+    public static class RefreshTokenRequest {
+
+        @NotBlank(message = "Refresh token is required")
+        private String refreshToken;
     }
 }

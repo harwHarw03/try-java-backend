@@ -21,6 +21,7 @@ import java.util.List;
  * Base URL: /data and /devices/{id}/...
  */
 @RestController
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Tag(name = "Sensor Data", description = "Submit and query IoT sensor readings")
 @SecurityRequirement(name = "Bearer Authentication")

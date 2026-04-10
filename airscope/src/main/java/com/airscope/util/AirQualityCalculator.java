@@ -89,14 +89,14 @@ public class AirQualityCalculator {
     public static double movingAverage(List<SensorData> readings, String field, int n) {
         if (readings == null || readings.isEmpty()) return 0.0;
 
-        // Take only the most recent N readings
-        List<SensorData> window = readings.subList(0, Math.min(n, readings.size()));
+        int effectiveSize = Math.min(n, readings.size());
+        if (effectiveSize == 0) return 0.0;
 
         double sum = 0.0;
         int count = 0;
 
-        for (SensorData reading : window) {
-            Double value = getFieldValue(reading, field);
+        for (int i = 0; i < effectiveSize; i++) {
+            Double value = getFieldValue(readings.get(i), field);
             if (value != null) {
                 sum += value;
                 count++;
@@ -123,23 +123,18 @@ public class AirQualityCalculator {
      */
     public static String detectTrend(List<SensorData> readings, String field) {
         if (readings == null || readings.size() < 4) {
-            return "STABLE"; // not enough data for trend detection
+            return "STABLE";
         }
 
         int mid = readings.size() / 2;
+        if (mid < 2) return "STABLE";
 
-        // Older readings = second half of the list (remember: newest first)
-        List<SensorData> recentHalf = readings.subList(0, mid);
-        List<SensorData> olderHalf = readings.subList(mid, readings.size());
+        double recentAvg = movingAverage(readings.subList(0, mid), field, mid);
+        double olderAvg = movingAverage(readings.subList(mid, readings.size()), field, readings.size() - mid);
 
-        double recentAvg = movingAverage(recentHalf, field, recentHalf.size());
-        double olderAvg = movingAverage(olderHalf, field, olderHalf.size());
-
-        // Calculate % change from older to recent
         if (olderAvg == 0) return "STABLE";
         double changePercent = ((recentAvg - olderAvg) / olderAvg) * 100;
 
-        // Consider it a trend only if the change is more than 5%
         if (changePercent > 5) return "INCREASING";
         if (changePercent < -5) return "DECREASING";
         return "STABLE";

@@ -24,10 +24,13 @@ Collects and analyzes air quality data (temperature, humidity, CO₂, PM2.5) fro
 chmod +x setup.sh run.sh db.sh
 ./setup.sh
 
-# 2. Start the application
+# 2. Create .env file from example
+cp .env.example .env
+
+# 3. Start the application
 ./run.sh
 
-# 3. Open Swagger UI in your browser
+# 4. Open Swagger UI in your browser
 open http://localhost:8080/swagger-ui.html
 ```
 
@@ -90,22 +93,25 @@ src/main/java/com/airscope/
 
 ## 🔌 API Reference
 
+> **API Version**: All endpoints are prefixed with `/api/v1`
+
 ### Authentication
 
 #### Register
 ```http
-POST /auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "password": "mypassword"
+  "password": "mypassword123"
 }
 ```
 Response:
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9...",
   "email": "user@example.com",
   "role": "ROLE_USER",
   "message": "Registration successful"
@@ -114,12 +120,22 @@ Response:
 
 #### Login
 ```http
-POST /auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "password": "mypassword"
+  "password": "mypassword123"
+}
+```
+
+#### Refresh Token
+```http
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiJ9..."
 }
 ```
 
@@ -130,7 +146,7 @@ Content-Type: application/json
 
 #### Register a device
 ```http
-POST /devices
+POST /api/v1/devices
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -149,7 +165,24 @@ Response:
 
 #### List my devices
 ```http
-GET /devices
+GET /api/v1/devices
+Authorization: Bearer <token>
+```
+
+#### Update a device
+```http
+PUT /api/v1/devices/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "Updated Device Name"
+}
+```
+
+#### Delete a device
+```http
+DELETE /api/v1/devices/{id}
 Authorization: Bearer <token>
 ```
 
@@ -159,7 +192,7 @@ Authorization: Bearer <token>
 
 #### Submit a reading
 ```http
-POST /data
+POST /api/v1/data
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -174,13 +207,13 @@ Content-Type: application/json
 
 #### Get recent readings
 ```http
-GET /devices/1/data?limit=50
+GET /api/v1/devices/1/data?limit=50
 Authorization: Bearer <token>
 ```
 
 #### Get air quality score
 ```http
-GET /devices/1/score
+GET /api/v1/devices/1/score
 Authorization: Bearer <token>
 ```
 Response:
@@ -195,7 +228,7 @@ Response:
 
 #### Get CO2 trend
 ```http
-GET /devices/1/trends
+GET /api/v1/devices/1/trends
 Authorization: Bearer <token>
 ```
 Response:
@@ -216,7 +249,7 @@ Response:
 
 #### Create an alert
 ```http
-POST /alerts
+POST /api/v1/alerts
 Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -229,11 +262,23 @@ Content-Type: application/json
 
 #### List alerts for a device
 ```http
-GET /alerts/device/1
+GET /api/v1/alerts/device/1
+Authorization: Bearer <token>
+```
+
+#### Delete an alert
+```http
+DELETE /api/v1/alerts/{id}
 Authorization: Bearer <token>
 ```
 
 ---
+
+### Health Check
+
+```http
+GET /actuator/health
+```
 
 ## 🧮 Algorithms
 

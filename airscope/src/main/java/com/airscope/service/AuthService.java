@@ -52,10 +52,11 @@ public class AuthService {
 
         userRepository.save(newUser);
 
-        // Generate a JWT token immediately so they don't need to log in separately
+        // Generate JWT tokens immediately so they don't need to log in separately
         String token = jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(newUser.getEmail(), newUser.getRole());
 
-        return new AuthResponse(token, newUser.getEmail(), newUser.getRole(), "Registration successful");
+        return new AuthResponse(token, refreshToken, newUser.getEmail(), newUser.getRole(), "Registration successful");
     }
 
     /**
@@ -64,7 +65,7 @@ public class AuthService {
      * Steps:
      *   1. Use Spring Security's AuthenticationManager to verify credentials
      *   2. If credentials are wrong, it throws BadCredentialsException (handled globally)
-     *   3. If correct, generate and return a JWT token
+     *   3. If correct, generate and return JWT tokens
      */
     public AuthResponse login(LoginRequest request) {
         // This does the heavy lifting: loads the user, compares BCrypt hashes
@@ -78,7 +79,28 @@ public class AuthService {
                 .orElseThrow(() -> new AppExceptions.ResourceNotFoundException("User not found"));
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole());
 
-        return new AuthResponse(token, user.getEmail(), user.getRole(), "Login successful");
+        return new AuthResponse(token, refreshToken, user.getEmail(), user.getRole(), "Login successful");
+    }
+
+    /**
+     * Refresh tokens using a valid refresh token.
+     */
+    public AuthResponse refreshToken(String refreshToken) {
+        if (jwtUtil.isTokenExpired(refreshToken)) {
+            throw new AppExceptions.UnauthorizedException("Refresh token has expired");
+        }
+
+        String email = jwtUtil.extractEmail(refreshToken);
+        String role = jwtUtil.extractRole(refreshToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppExceptions.ResourceNotFoundException("User not found"));
+
+        String newToken = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole());
+
+        return new AuthResponse(newToken, newRefreshToken, user.getEmail(), user.getRole(), "Token refreshed");
     }
 }

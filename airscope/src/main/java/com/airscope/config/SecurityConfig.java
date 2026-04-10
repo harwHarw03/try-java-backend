@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 // Swagger UI — allow in development
                 .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
+                // Health check endpoints
+                .requestMatchers("/actuator/**").permitAll()
                 // Everything else requires a valid JWT token
                 .anyRequest().authenticated()
             )

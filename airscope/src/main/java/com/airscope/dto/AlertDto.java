@@ -1,7 +1,6 @@
 package com.airscope.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -19,9 +18,13 @@ public class AlertDto {
     public static class AlertRequest {
 
         @NotBlank(message = "Alert type is required (CO2, TEMP, PM25, HUMIDITY)")
+        @Pattern(regexp = "^(CO2|TEMP|PM25|HUMIDITY)$", 
+                 flags = Pattern.Flag.CASE_INSENSITIVE,
+                 message = "Alert type must be one of: CO2, TEMP, PM25, HUMIDITY")
         private String type;
 
         @NotNull(message = "Threshold value is required")
+        @DecimalMin(value = "0.0", message = "Threshold must be at least 0")
         private Double threshold;
 
         @NotNull(message = "Device ID is required")

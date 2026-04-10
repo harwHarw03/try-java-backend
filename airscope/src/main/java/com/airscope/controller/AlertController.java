@@ -22,7 +22,7 @@ import java.util.List;
  * Base URL: /alerts
  */
 @RestController
-@RequestMapping("/alerts")
+@RequestMapping("/api/v1/alerts")
 @RequiredArgsConstructor
 @Tag(name = "Alerts", description = "Configure threshold alerts for devices")
 @SecurityRequirement(name = "Bearer Authentication")
@@ -74,5 +74,22 @@ public class AlertController {
 
         List<AlertResponse> alerts = alertService.getDeviceAlerts(deviceId, userDetails.getUsername());
         return ResponseEntity.ok(alerts);
+    }
+
+    /**
+     * DELETE /alerts/{id}
+     *
+     * Delete a specific alert.
+     *
+     * Response (204 No Content)
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete an alert")
+    public ResponseEntity<Void> deleteAlert(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        alertService.deleteAlert(id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }

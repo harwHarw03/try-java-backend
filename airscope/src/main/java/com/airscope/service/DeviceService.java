@@ -62,6 +62,43 @@ public class DeviceService {
     }
 
     /**
+     * Update an existing device's name.
+     *
+     * @param deviceId the device ID
+     * @param request updated device details
+     * @param userEmail the email of the authenticated user
+     */
+    public DeviceResponse updateDevice(Long deviceId, DeviceRequest request, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new AppExceptions.ResourceNotFoundException("User not found"));
+
+        Device device = deviceRepository.findByIdAndUserId(deviceId, user.getId())
+                .orElseThrow(() -> new AppExceptions.UnauthorizedException(
+                        "Device not found or does not belong to you"));
+
+        device.setName(request.getName());
+        Device saved = deviceRepository.save(device);
+        return toResponse(saved);
+    }
+
+    /**
+     * Delete a device and all its associated data.
+     *
+     * @param deviceId the device ID
+     * @param userEmail the email of the authenticated user
+     */
+    public void deleteDevice(Long deviceId, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new AppExceptions.ResourceNotFoundException("User not found"));
+
+        Device device = deviceRepository.findByIdAndUserId(deviceId, user.getId())
+                .orElseThrow(() -> new AppExceptions.UnauthorizedException(
+                        "Device not found or does not belong to you"));
+
+        deviceRepository.delete(device);
+    }
+
+    /**
      * Convert a Device entity to a DeviceResponse DTO.
      * We do this to avoid exposing internal entity structure to clients.
      */

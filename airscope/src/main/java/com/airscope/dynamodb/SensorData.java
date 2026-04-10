@@ -26,8 +26,10 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamoDbBean // tells DynamoDB Enhanced Client this is a table-mapped class
+@DynamoDbBean
 public class SensorData {
+
+    public static final String TABLE_NAME = "sensor_data";
 
     private String deviceId;   // Partition Key - which device sent this
     private String timestamp;  // Sort Key - when it was sent (ISO 8601 format)

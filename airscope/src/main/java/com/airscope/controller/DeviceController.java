@@ -28,7 +28,7 @@ import java.util.List;
  * Base URL: /devices
  */
 @RestController
-@RequestMapping("/devices")
+@RequestMapping("/api/v1/devices")
 @RequiredArgsConstructor
 @Tag(name = "Devices", description = "Manage IoT devices")
 @SecurityRequirement(name = "Bearer Authentication")
@@ -75,5 +75,41 @@ public class DeviceController {
 
         List<DeviceResponse> devices = deviceService.getUserDevices(userDetails.getUsername());
         return ResponseEntity.ok(devices);
+    }
+
+    /**
+     * PUT /devices/{id}
+     *
+     * Update an existing device's name.
+     *
+     * Response (200 OK):
+     * { "id": 1, "name": "Updated Name", "userId": 3 }
+     */
+    @PutMapping("/{id}")
+    @Operation(summary = "Update a device")
+    public ResponseEntity<DeviceResponse> updateDevice(
+            @PathVariable Long id,
+            @Valid @RequestBody DeviceRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        DeviceResponse response = deviceService.updateDevice(id, request, userDetails.getUsername());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * DELETE /devices/{id}
+     *
+     * Delete a device and all its associated data.
+     *
+     * Response (204 No Content)
+     */
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a device")
+    public ResponseEntity<Void> deleteDevice(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        deviceService.deleteDevice(id, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }

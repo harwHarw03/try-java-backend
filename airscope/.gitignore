@@ -3,12 +3,6 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-**/application.properties
-**/*.properties
-
-# OS junk
-*:Zone.Identifier
-
 
 ### STS ###
 .apt_generated
